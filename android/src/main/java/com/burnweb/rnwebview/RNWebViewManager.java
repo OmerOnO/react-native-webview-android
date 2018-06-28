@@ -64,7 +64,7 @@ public class RNWebViewManager extends SimpleViewManager<RNWebView> {
 
 
     @Override
-    public RNWebView createViewInstance(ThemedReactContext context) {
+    public RNWebView createViewInstance(final ThemedReactContext context) {
         RNWebView rnwv = new RNWebView(this, context);
         rnwv.setDownloadListener(new DownloadListener() {
             @Override
