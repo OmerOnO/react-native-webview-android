@@ -49,9 +49,58 @@ public class RNWebViewManager extends SimpleViewManager<RNWebView> {
         return REACT_CLASS;
     }
 
+    private void sendEvent(ReactContext reactContext,
+                           String eventName,
+                           @Nullable WritableMap params) {
+        reactContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                .emit(eventName, params);
+    }
+
+
     @Override
     public RNWebView createViewInstance(ThemedReactContext context) {
         RNWebView rnwv = new RNWebView(this, context);
+        rnwv.setDownloadListener(new DownloadListener() {
+            @Override
+            public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimeType, long contentLength) {
+                WritableMap params = Arguments.createMap();
+                params.putString("mimeType", mimeType);
+                params.putString("url", url);
+                sendEvent(context, "downloadEvent", params);
+                /**
+                 * The following is a possible android native implementation.
+                 * It isn't relevant currently since I'm already sending an event to
+                 * react native and dealing with the download on the react native side.
+                 */
+//                DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+//
+//                request.setMimeType(mimeType);
+//                //------------------------COOKIE!!------------------------
+//                String cookies = CookieManager.getInstance().getCookie(url);
+//                request.addRequestHeader("cookie", cookies);
+//                //------------------------COOKIE!!------------------------
+//                request.addRequestHeader("User-Agent", userAgent);
+//                request.setDescription("Downloading file...");
+//                request.setTitle(URLUtil.guessFileName(url, contentDisposition, mimeType));
+//                request.allowScanningByMediaScanner();
+//                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+//                String fileName = URLUtil.guessFileName(url, contentDisposition, mimeType);
+//                String newFileName = fileName;
+//                // TODO: 25/06/2018 change the file name according to the mime type
+//                if (!TextUtils.isEmpty(fileName) && mimeType.contains("pdf")) {
+//                    int i = fileName.lastIndexOf(".");
+//                    if (i > 0) {
+//                        newFileName = fileName.substring(0, i) + ".pdf";
+//                    } else {
+//                        newFileName = "download.pdf";
+//                    }
+//                }
+//                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, newFileName);
+//                DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+//                dm.enqueue(request);
+            }
+        });
 
         // Fixes broken full-screen modals/galleries due to body
         // height being 0.
