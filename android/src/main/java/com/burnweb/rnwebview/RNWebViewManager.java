@@ -19,6 +19,9 @@ import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.annotations.ReactProp;
 import com.facebook.react.common.annotations.VisibleForTesting;
 
+import static android.content.ContentValues.TAG;
+
+
 import org.json.JSONObject;
 import org.json.JSONException;
 
@@ -138,6 +141,7 @@ public class RNWebViewManager extends SimpleViewManager<RNWebView> {
 
     @ReactProp(name = "source")
     public void setSource(RNWebView view, @Nullable ReadableMap source) {
+        Log.e(TAG, "setSource: REALLY GOT HERE!!!! ");
         if (source != null) {
             if (source.hasKey("baseUrl")) {
                 setBaseUrl(view, source.getString("baseUrl"));
