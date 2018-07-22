@@ -66,6 +66,19 @@ public class RNWebViewManager extends SimpleViewManager<RNWebView> {
     @Override
     public RNWebView createViewInstance(final ThemedReactContext context) {
         RNWebView rnwv = new RNWebView(this, context);
+        rnwv.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+                sendEvent(context, "onPageStarted", null);
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                sendEvent(context, "onPageFinished", null);
+            }
+        });
         rnwv.setDownloadListener(new DownloadListener() {
             @Override
             public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimeType, long contentLength) {
