@@ -10,6 +10,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.webkit.DownloadListener;
 import android.webkit.WebSettings;
 import android.webkit.CookieManager;
+import android.webkit.WebViewClient;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
