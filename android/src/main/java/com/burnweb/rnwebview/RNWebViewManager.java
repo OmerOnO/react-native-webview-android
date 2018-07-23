@@ -4,15 +4,12 @@ import javax.annotation.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
-import android.graphics.Bitmap;
 
 import android.util.Log;
 import android.view.ViewGroup.LayoutParams;
 import android.webkit.DownloadListener;
 import android.webkit.WebSettings;
 import android.webkit.CookieManager;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
@@ -69,19 +66,6 @@ public class RNWebViewManager extends SimpleViewManager<RNWebView> {
     @Override
     public RNWebView createViewInstance(final ThemedReactContext context) {
         RNWebView rnwv = new RNWebView(this, context);
-        rnwv.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageStarted(WebView view, String url, Bitmap favicon) {
-                super.onPageStarted(view, url, favicon);
-                sendEvent(context, "onPageStarted", null);
-            }
-
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-                sendEvent(context, "onPageFinished", null);
-            }
-        });
         rnwv.setDownloadListener(new DownloadListener() {
             @Override
             public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimeType, long contentLength) {
@@ -127,7 +111,7 @@ public class RNWebViewManager extends SimpleViewManager<RNWebView> {
         // height being 0.
         rnwv.setLayoutParams(
                 new LayoutParams(LayoutParams.MATCH_PARENT,
-                    LayoutParams.MATCH_PARENT));
+                        LayoutParams.MATCH_PARENT));
         CookieManager.getInstance().setAcceptCookie(true); // add default cookie support
         CookieManager.getInstance().setAcceptFileSchemeCookies(true); // add default cookie support
 
@@ -254,13 +238,13 @@ public class RNWebViewManager extends SimpleViewManager<RNWebView> {
     @Override
     public @Nullable Map<String, Integer> getCommandsMap() {
         return MapBuilder.of(
-            "goBack", GO_BACK,
-            "goForward", GO_FORWARD,
-            "reload", RELOAD,
-            "stopLoading", STOP_LOADING,
-            "postMessage", POST_MESSAGE,
-            "injectJavaScript", INJECT_JAVASCRIPT,
-            "shouldOverrideWithResult", SHOULD_OVERRIDE_WITH_RESULT
+                "goBack", GO_BACK,
+                "goForward", GO_FORWARD,
+                "reload", RELOAD,
+                "stopLoading", STOP_LOADING,
+                "postMessage", POST_MESSAGE,
+                "injectJavaScript", INJECT_JAVASCRIPT,
+                "shouldOverrideWithResult", SHOULD_OVERRIDE_WITH_RESULT
         );
     }
 
@@ -281,21 +265,21 @@ public class RNWebViewManager extends SimpleViewManager<RNWebView> {
                 break;
             case POST_MESSAGE:
                 try {
-                  JSONObject eventInitDict = new JSONObject();
-                  eventInitDict.put("data", args.getString(0));
-                  view.loadUrl("javascript:(function () {" +
-                    "var event;" +
-                    "var data = " + eventInitDict.toString() + ";" +
-                    "try {" +
-                      "event = new MessageEvent('message', data);" +
-                    "} catch (e) {" +
-                      "event = document.createEvent('MessageEvent');" +
-                      "event.initMessageEvent('message', true, true, data.data, data.origin, data.lastEventId, data.source);" +
-                    "}" +
-                    "document.dispatchEvent(event);" +
-                  "})();");
+                    JSONObject eventInitDict = new JSONObject();
+                    eventInitDict.put("data", args.getString(0));
+                    view.loadUrl("javascript:(function () {" +
+                            "var event;" +
+                            "var data = " + eventInitDict.toString() + ";" +
+                            "try {" +
+                            "event = new MessageEvent('message', data);" +
+                            "} catch (e) {" +
+                            "event = document.createEvent('MessageEvent');" +
+                            "event.initMessageEvent('message', true, true, data.data, data.origin, data.lastEventId, data.source);" +
+                            "}" +
+                            "document.dispatchEvent(event);" +
+                            "})();");
                 } catch (JSONException e) {
-                  throw new RuntimeException(e);
+                    throw new RuntimeException(e);
                 }
                 break;
             case INJECT_JAVASCRIPT:
@@ -310,10 +294,10 @@ public class RNWebViewManager extends SimpleViewManager<RNWebView> {
     @Override
     public Map getExportedCustomDirectEventTypeConstants() {
         return MapBuilder.<String, Object>builder()
-            .put(NavigationStateChangeEvent.EVENT_NAME, MapBuilder.of("registrationName", "onNavigationStateChange"))
-            .put(MessageEvent.EVENT_NAME, MapBuilder.of("registrationName", "onMessageEvent"))
-            .put(ShouldOverrideUrlLoadingEvent.EVENT_NAME, MapBuilder.of("registrationName", "onShouldOverrideUrlLoading"))
-            .build();
+                .put(NavigationStateChangeEvent.EVENT_NAME, MapBuilder.of("registrationName", "onNavigationStateChange"))
+                .put(MessageEvent.EVENT_NAME, MapBuilder.of("registrationName", "onMessageEvent"))
+                .put(ShouldOverrideUrlLoadingEvent.EVENT_NAME, MapBuilder.of("registrationName", "onShouldOverrideUrlLoading"))
+                .build();
     }
 
     @Override

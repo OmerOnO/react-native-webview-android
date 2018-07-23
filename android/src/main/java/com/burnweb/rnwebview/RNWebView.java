@@ -13,13 +13,17 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-
+import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.common.SystemClock;
 import com.facebook.react.bridge.LifecycleEventListener;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.UIManagerModule;
 import com.facebook.react.uimanager.events.EventDispatcher;
+
+import javax.annotation.Nullable;
 
 class RNWebView extends WebView implements LifecycleEventListener {
 
@@ -35,6 +39,19 @@ class RNWebView extends WebView implements LifecycleEventListener {
     private String shouldOverrideUrlLoadingUrl = "";
 
     protected class EventWebClient extends WebViewClient {
+        private ThemedReactContext mThemedReactContext;
+
+        public EventWebClient(ThemedReactContext reactContext) {
+            this.mThemedReactContext = reactContext;
+        }
+
+        private void sendEvent(String eventName,
+                               @Nullable WritableMap params) {
+            mThemedReactContext
+                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                    .emit(eventName, params);
+        }
+
         public boolean shouldOverrideUrlLoading(WebView view, String url){
             int navigationType = 0;
 
@@ -56,10 +73,12 @@ class RNWebView extends WebView implements LifecycleEventListener {
             if(RNWebView.this.getInjectedJavaScript() != null) {
                 view.loadUrl("javascript:(function() {\n" + RNWebView.this.getInjectedJavaScript() + ";\n})();");
             }
+            sendEvent("onPageFinished", null);
         }
 
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             mEventDispatcher.dispatchEvent(new NavigationStateChangeEvent(getId(), SystemClock.nanoTime(), view.getTitle(), true, url, view.canGoBack(), view.canGoForward()));
+            sendEvent("onPageStarted", null);
         }
     }
 
@@ -113,7 +132,7 @@ class RNWebView extends WebView implements LifecycleEventListener {
             this.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
         }
 
-        this.setWebViewClient(new EventWebClient());
+        this.setWebViewClient(new EventWebClient(reactContext));
         this.setWebChromeClient(getCustomClient());
 
         this.addJavascriptInterface(RNWebView.this, "webView");
@@ -191,7 +210,7 @@ class RNWebView extends WebView implements LifecycleEventListener {
     }
 
     @JavascriptInterface
-     public void postMessage(String jsParamaters) {
+    public void postMessage(String jsParamaters) {
         mEventDispatcher.dispatchEvent(new MessageEvent(getId(), jsParamaters));
     }
 }
